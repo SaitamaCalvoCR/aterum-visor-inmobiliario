@@ -1,0 +1,57 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "area_calculada_m2": 1148.0503625273705,
+        "area_fuente_m2": 1181.175621223163,
+        "fuente": "SIRI/RNP ArcGIS REST FeatureServer",
+        "limites": "Referenciales",
+        "area_tipo": "Aproximada, geometría ajustada",
+        "area_atributo_estado": "Conservado de la fuente; no actualizado con la geometría"
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [
+            [
+              [
+                -84.59072394826676,
+                9.841413526633382
+              ],
+              [
+                -84.59093293320655,
+                9.841452208198437
+              ],
+              [
+                -84.5908945964788,
+                9.841666879970115
+              ],
+              [
+                -84.59088450953652,
+                9.841761986518051
+              ],
+              [
+                -84.59087205103289,
+                9.84176001517604
+              ],
+              [
+                -84.59085838960272,
+                9.841846896287903
+              ],
+              [
+                -84.59061924072044,
+                9.841838495680284
+              ],
+              [
+                -84.59072394826676,
+                9.841413526633382
+              ]
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

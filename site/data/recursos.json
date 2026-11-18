@@ -1,0 +1,46 @@
+{
+  "title": "Propiedad en venta",
+  "photos": [
+    {
+      "src": "assets/propiedad/fotos/vista-aerea.webp",
+      "thumb": "assets/propiedad/miniaturas/vista-aerea.webp",
+      "alt": "Vista aérea del inmueble",
+      "category": "inmueble"
+    },
+    {
+      "src": "assets/propiedad/fotos/atardecer.webp",
+      "thumb": "assets/propiedad/miniaturas/atardecer.webp",
+      "alt": "Vista aérea al atardecer",
+      "category": "entorno"
+    }
+  ],
+  "guacalillo": [
+    {
+      "src": "assets/turismo/guacalillo/guacalillo1.webp",
+      "thumb": "assets/propiedad/miniaturas/guacalillo1.webp",
+      "alt": "Guacalillo · fotografía aportada",
+      "category": "guacalillo"
+    },
+    {
+      "src": "assets/turismo/guacalillo/guacalillo2.webp",
+      "thumb": "assets/propiedad/miniaturas/guacalillo2.webp",
+      "alt": "Guacalillo · fotografía aportada",
+      "category": "guacalillo"
+    }
+  ],
+  "videos": [
+    {
+      "src": "assets/propiedad/videos/atardecer.mp4",
+      "poster": "assets/propiedad/videos/atardecer-portada.webp",
+      "title": "Atardecer desde el aire",
+      "duration_s": 9.0
+    },
+    {
+      "src": "assets/propiedad/videos/recorrido.mp4",
+      "poster": "assets/propiedad/videos/recorrido-portada.webp",
+      "title": "Recorrido aéreo",
+      "duration_s": 51.07
+    }
+  ],
+  "commercial_rights_confirmed": false
+}

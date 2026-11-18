@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Visor inmobiliario ATERUM: cartografía, ortofotografía y exploración tridimensional del inmueble.">
+  <title>ATERUM | Visor inmobiliario</title>
+  <link rel="icon" href="assets/aterum-icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="vendor/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="information.css">
+  <script type="importmap">{"imports":{"three":"./vendor/three/build/three.module.js","three/addons/":"./vendor/three/examples/jsm/"}}</script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="ATERUM, inicio"><img src="assets/aterum-logo.svg" alt="ATERUM"></a>
+    <span class="header-title">Visor inmobiliario</span><span class="badge">Exploración del inmueble</span><button id="togglePanel" class="outline" aria-expanded="true" aria-controls="propertyPanel">Ocultar panel</button>
+  </header>
+  <main class="workspace">
+    <aside class="sidebar" id="propertyPanel">
+      <div class="intro"><span class="eyebrow">Explora el inmueble</span><h1>Una propiedad.<br> Otra perspectiva.</h1><p>El territorio, desde el mapa hasta el detalle.</p></div>
+      <div class="property-summary"><span class="eyebrow">Superficie aproximada</span><strong id="area">—</strong><span>Límites referenciales · No sustituye un levantamiento</span></div>
+      <nav aria-label="Vistas del inmueble">
+        <button id="btnMapa" aria-pressed="true" aria-controls="vistaMapa"><span>01</span> Mapa y ortofoto</button>
+        <button id="btn3D" aria-pressed="false" aria-controls="vista3D"><span>02</span> Explorar en 3D</button>
+        <button id="btnInfo" aria-pressed="false" aria-controls="vistaInfo"><span>03</span> Información</button>
+      </nav>
+      <section id="mapControls" class="controls" aria-labelledby="layersTitle">
+        <h2 id="layersTitle">Capas del inmueble</h2>
+        <label class="check"><input id="showOrtho" type="checkbox" checked disabled> Ortofotografía de dron</label>
+        <div class="range-heading"><label for="opacity">Opacidad de la ortofoto</label><output id="opacityValue" for="opacity">100%</output></div>
+        <input id="opacity" type="range" min="0" max="100" value="100" disabled>
+        <label class="check"><input id="showParcel" type="checkbox" checked disabled> Límite catastral</label>
+        <label class="check"><input id="compare" type="checkbox"> Comparar con satélite</label>
+        <button id="fit" class="outline" disabled>Encuadrar predio</button>
+      </section>
+      <div class="sidebar-footer"><span class="status-dot"></span> Datos originales · WebODM / Catastro<p>Visualización de referencia. Información comercial pendiente de confirmar.</p></div>
+    </aside>
+    <div class="content">
+      <section id="vistaMapa" class="view map-view" aria-label="Mapa del inmueble">
+        <div id="map"></div>
+        <p id="mapStatus" class="notice" role="status">Cargando cartografía del inmueble…</p>
+        <div id="divider" class="compare-divider" hidden aria-hidden="true"></div>
+        <div id="swipeControl" class="swipe-control" hidden><label for="swipe">Satélite ↔ Ortofotografía</label><input id="swipe" type="range" min="0" max="100" value="50"></div>
+        <div class="map-caption"><span class="parcel-line"></span> Predio <span class="image-dot"></span> Ortofotografía de dron</div>
+      </section>
+      <section id="vista3D" class="view model-view" aria-labelledby="modelTitle" hidden>
+        <div class="view-heading"><div><span class="eyebrow">Fotogrametría</span><h2 id="modelTitle">Explora el inmueble en 3D</h2></div><button id="resetCamera" class="outline" disabled>Restablecer cámara</button></div>
+        <div class="camera-controls" aria-label="Controles del modelo"><button class="outline" data-camera="top" disabled>Desde arriba</button><button class="outline" data-camera="front" disabled>Frontal</button><button class="outline" data-camera="side" disabled>Lateral</button><button class="outline" data-camera="orbit" disabled>Rotar</button><button class="outline" data-camera="in" disabled>Acercar</button><button class="outline" data-camera="out" disabled>Alejar</button><button class="outline" data-camera="left" aria-label="Desplazar a la izquierda" disabled>←</button><button class="outline" data-camera="right" aria-label="Desplazar a la derecha" disabled>→</button><button class="outline" data-camera="up" aria-label="Desplazar arriba" disabled>↑</button><button class="outline" data-camera="down" aria-label="Desplazar abajo" disabled>↓</button></div>
+        <div id="viewer3d"><p id="modelStatus" class="model-status" role="status">Preparando modelo…</p></div>
+        <div class="model-footer"><p>Arrastra para rotar · Rueda o pellizco para zoom · Botón derecho o dos dedos para desplazar</p><span>Modelo independiente · Ubicación geográfica no verificada</span></div>
+      </section>
+      <section id="vistaInfo" class="view info-view" aria-labelledby="infoTitle" hidden>
+        <nav class="experience-nav" aria-label="Descubrí la propiedad"><a href="#presentacion">La propiedad</a><a href="#alrededores">Alrededores</a><a href="#guacalillo">Guacalillo</a></nav>
+        <div id="infoStatus" role="status">Preparando la experiencia…</div>
+        <article id="experience" hidden>
+          <section id="presentacion" class="property-hero">
+            <button id="heroPhoto" class="hero-photo" aria-label="Ampliar fotografía principal"><img id="mainPhoto" alt="" decoding="async"><span>Ver galería ↗</span></button>
+            <div class="hero-copy"><span class="eyebrow">Un lugar para descubrir</span><h2 id="infoTitle">Propiedad en venta</h2><p id="propertyLocation" hidden></p><div class="hero-area"><strong id="infoArea">—</strong><span>Superficie aproximada · Límites referenciales</span></div></div>
+          </section>
+          <div class="gallery-strip"><div><span class="eyebrow">Inmueble y entorno</span><p id="photoCount"></p></div><div id="photoThumbs" class="photo-thumbs"></div></div>
+          <section class="experience-section know-property"><div><span class="eyebrow">Conocé la propiedad</span><h3>La perspectiva completa.</h3><p>Recorré sus imágenes, ubicala en el mapa y explorá la reconstrucción tridimensional.</p><div class="experience-actions"><button class="primary" data-view="btnMapa">Ver en mapa ↗</button><button class="secondary" data-view="btn3D">Explorar modelo 3D</button><a id="propertyDirections" hidden class="secondary" target="_blank" rel="noopener noreferrer">Consultar ubicación ↗</a></div></div><div id="propertyFacts" class="property-facts"></div></section>
+          <section class="experience-section"><div class="section-heading"><div><span class="eyebrow">Desde el aire</span><h3>Otra forma de conocerla.</h3></div><p>Imágenes del inmueble y su entorno.</p></div><div id="droneVideos" class="video-grid"></div></section>
+          <section id="alrededores" class="experience-section surroundings"><div class="section-heading"><div><span class="eyebrow">Explorá sus alrededores</span><h3>Conectá con lo que te rodea.</h3></div><p>Elegí un destino y descubrí el recorrido desde la propiedad.</p></div>
+            <div class="route-map-shell"><div class="route-map-toolbar"><div><strong id="selectedDestination">Todos los destinos</strong><p id="routeSummary" role="status">Rutas por carretera precalculadas</p></div><button id="routeOverview" class="secondary">Vista general</button><button id="routeOrigin" class="secondary">Volver al origen</button><button id="mapInteraction" class="secondary" aria-pressed="false">Activar mapa</button></div><div id="surroundingsMap" aria-label="Mapa de rutas y destinos"></div><p id="routeMapError" class="route-warning" role="status" hidden></p></div>
+            <p class="route-note">Distancias viales y tiempos estimados de openrouteservice, sin tráfico en vivo. Accesos no verificados en campo.</p>
+            <div class="section-heading services-heading"><div><span class="eyebrow">Tu día a día</span><h3>Servicios cercanos</h3></div><div id="serviceFilters" class="service-filters" aria-label="Categorías de servicios"></div></div><div id="serviceCards" class="destination-grid"></div>
+          </section>
+          <section class="experience-section regional"><span class="eyebrow">Conectividad regional</span><h3>Más allá del vecindario.</h3><div id="regionalCards" class="regional-grid"></div></section>
+          <section id="guacalillo" class="tourism-feature"><div class="tourism-photos"><button id="guacalilloMain" aria-label="Ampliar fotografía de Guacalillo"><img id="guacalilloPhoto" loading="lazy" alt=""></button><button id="guacalilloSecond" aria-label="Ampliar segunda fotografía de Guacalillo"><img id="guacalilloPhoto2" loading="lazy" alt=""></button></div><div class="tourism-copy"><span class="eyebrow">Descubrí Guacalillo</span><h3>Una mirada<br>hacia la costa.</h3><p>Descubrí el paisaje de Guacalillo en estas fotografías. Explorá también la ruta al mirador identificado en los datos.</p><div id="guacalilloRoute"></div></div></section>
+          <footer class="experience-footer"><img src="assets/aterum-icon.svg" alt=""><p>Explorá con otra perspectiva.</p><small>La superficie y los límites son referenciales. La visualización no sustituye un deslinde topográfico certificado.</small></footer>
+        </article>
+        <dialog id="photoDialog" class="photo-dialog" aria-label="Galería ampliada"><button id="closePhoto" class="dialog-close" aria-label="Cerrar galería">Cerrar ✕</button><img id="expandedPhoto" alt=""><div class="dialog-controls"><button id="previousPhoto" aria-label="Fotografía anterior">←</button><p id="expandedCaption" aria-live="polite"></p><button id="nextPhoto" aria-label="Fotografía siguiente">→</button></div></dialog>
+      </section>
+    </div>
+  </main>
+  <script src="vendor/leaflet.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

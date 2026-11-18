@@ -1,0 +1,57 @@
+{
+  "image": "ortofoto/inmueble.png",
+  "source": "source-data\\ortofoto\\ortocasa.tif",
+  "source_crs": "GEOGCRS[\"WGS 84\",\n    ENSEMBLE[\"World Geodetic System 1984 ensemble\",\n        MEMBER[\"World Geodetic System 1984 (Transit)\"],\n        MEMBER[\"World Geodetic System 1984 (G730)\"],\n        MEMBER[\"World Geodetic System 1984 (G873)\"],\n        MEMBER[\"World Geodetic System 1984 (G1150)\"],\n        MEMBER[\"World Geodetic System 1984 (G1674)\"],\n        MEMBER[\"World Geodetic System 1984 (G1762)\"],\n        MEMBER[\"World Geodetic System 1984 (G2139)\"],\n        MEMBER[\"World Geodetic System 1984 (G2296)\"],\n        ELLIPSOID[\"WGS 84\",6378137,298.257223563,\n            LENGTHUNIT[\"metre\",1]],\n        ENSEMBLEACCURACY[2.0]],\n    PRIMEM[\"Greenwich\",0,\n        ANGLEUNIT[\"degree\",0.0174532925199433]],\n    CS[ellipsoidal,2],\n        AXIS[\"geodetic latitude (Lat)\",north,\n            ORDER[1],\n            ANGLEUNIT[\"degree\",0.0174532925199433]],\n        AXIS[\"geodetic longitude (Lon)\",east,\n            ORDER[2],\n            ANGLEUNIT[\"degree\",0.0174532925199433]],\n    USAGE[\n        SCOPE[\"Horizontal component of 3D system.\"],\n        AREA[\"World.\"],\n        BBOX[-90,-180,90,180]],\n    ID[\"EPSG\",4326]]",
+  "source_size": [
+    1002,
+    1205
+  ],
+  "source_geotransform": [
+    -84.59105709467435,
+    4.532899738e-07,
+    0.0,
+    9.841864573679407,
+    0.0,
+    -4.532899738e-07
+  ],
+  "source_bands": [
+    {
+      "color": "Red",
+      "nodata": null
+    },
+    {
+      "color": "Green",
+      "nodata": null
+    },
+    {
+      "color": "Blue",
+      "nodata": null
+    },
+    {
+      "color": "Alpha",
+      "nodata": null
+    }
+  ],
+  "transparent_pixels": 368470,
+  "crs": "EPSG:3857",
+  "bounds": [
+    [
+      9.84131847674135,
+      -84.59105709467435
+    ],
+    [
+      9.841864573679398,
+      -84.59060299111759
+    ]
+  ],
+  "bounds_3857": [
+    -9416633.401443882,
+    1100957.4827756502,
+    -9416582.850867175,
+    1101019.1819689728
+  ],
+  "width": 993,
+  "height": 1212,
+  "pixel_size_projected_m": 0.050906925183585666,
+  "parcel_coverage_fraction": 0.9999999999937401
+}
