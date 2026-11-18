@@ -1,5 +1,5 @@
 {
-  "title": "Propiedad en venta",
+  "title": "Demostración geoespacial | Lagunillas, Orotina",
   "photos": [
     {
       "src": "assets/propiedad/fotos/vista-aerea.webp",
@@ -36,7 +36,7 @@
       "duration_s": 9.0
     },
     {
-      "src": "assets/propiedad/videos/recorrido.mp4",
+      "src": "assets/propiedad/videos/recorrido-demo.mp4",
       "poster": "assets/propiedad/videos/recorrido-portada.webp",
       "title": "Recorrido aéreo",
       "duration_s": 51.07

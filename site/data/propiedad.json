@@ -1,8 +1,10 @@
-﻿{
-    "id": "propiedad-001",
-    "nombre": "Propiedad ATERUM",
-    "precio": null,
-    "area_m2": null,
-    "descripcion": null,
-    "contacto": null
+{
+  "id": "ejemplo-lagunillas",
+  "nombre": "Demostración geoespacial | Lagunillas, Orotina",
+  "ubicacion": "Lagunillas, Coyolar, Orotina, Alajuela",
+  "referencia_local": "25 metros oeste de la ASADA de Lagunillas",
+  "pais": "Costa Rica",
+  "proposito": "Demostración tecnológica",
+  "disponible_para_venta": false,
+  "nota_ubicacion": "Referencia descriptiva confirmada por el usuario; no es una coordenada topográfica medida."
 }

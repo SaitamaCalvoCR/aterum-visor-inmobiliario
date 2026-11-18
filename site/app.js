@@ -1,28 +1,52 @@
 import {satelliteLayer} from './satellite.js';
+import {areaLabel, areaNote, referenceArea} from './presentation.js';
+import {readNavigation, writeNavigation} from './navigation.js';
 const $ = id => document.getElementById(id);
 async function readJSON(path) {
   const response = await fetch(path);
   if (!response.ok) throw new Error(`No se pudo leer ${path} (${response.status})`);
   return response.json();
 }
-const formatArea = value => `≈ ${new Intl.NumberFormat('es-CR', {maximumFractionDigits: 2}).format(value)} m²`;
-const views = {btnMapa: 'vistaMapa', btn3D: 'vista3D', btnInfo: 'vistaInfo'};
-let map, parcel, ortho, model;
+const views = {mapa:['btnMapa','vistaMapa'], '3d':['btn3D','vista3D'], informacion:['btnInfo','vistaInfo']};
+let map, parcel, ortho, model, fitParcel, mapWasVisible=false;
 let modelStarting = false;
-for (const [button, view] of Object.entries(views)) {
-  $(button).addEventListener('click', () => {
-    for (const [other, section] of Object.entries(views)) {
-      $(section).hidden = section !== view;
-      $(other).setAttribute('aria-pressed', String(other === button));
-    }
-    $('mapControls').hidden = view !== 'vistaMapa';
-    if (view === 'vistaMapa') requestAnimationFrame(() => map?.invalidateSize());
-    if (view === 'vista3D') startModel();
-    if (view === 'vistaInfo') initInfo();
-    information?.setVisible(view === 'vistaInfo');
-    model?.setVisible(view === 'vista3D');
-  });
+let information, informationPromise, current = readNavigation();
+function syncDestination() {
+  if (!information || current.view !== 'informacion') return;
+  const resolved = information.setDestination(current.destination);
+  if (resolved !== current.destination) {
+    current.destination = resolved;
+    writeNavigation(current.view, resolved, 'replace');
+  }
 }
+function activateView(view, {destination=null, historyMode='push', fit=false} = {}) {
+  current = {view, destination:view === 'informacion' ? destination : null};
+  if (historyMode !== 'none') writeNavigation(current.view, current.destination, historyMode);
+  for (const [name,[button,section]] of Object.entries(views)) {
+    $(section).hidden = name !== view; $(button).setAttribute('aria-pressed', String(name === view));
+  }
+  $('mapControls').hidden = view !== 'mapa';
+  if (view === 'mapa') requestAnimationFrame(() => {map?.invalidateSize();if(fit || !mapWasVisible){fitParcel?.();if(fitParcel)mapWasVisible=true;}});
+  if (view === '3d') startModel();
+  if (view === 'informacion') {
+    if (information) {information.setVisible(true);syncDestination();}
+    else initInfo();
+  } else information?.setVisible(false);
+  model?.setVisible(view === '3d');
+}
+for (const [view,[button]] of Object.entries(views)) $(button).onclick=()=>activateView(view,{destination:view==='informacion'?information?.getDestination():null});
+document.addEventListener('click', event => {
+  const trigger=event.target.closest('[data-view]');
+  if (!trigger) return;
+  const view=Object.keys(views).find(name=>views[name][0]===trigger.dataset.view);
+  if(view) activateView(view,{fit:view==='mapa'});
+});
+window.addEventListener('popstate',()=>{const state=readNavigation();activateView(state.view,{destination:state.destination,historyMode:'none'});});
+$('shareView').onclick=async()=>{
+  try {await navigator.clipboard.writeText(location.href);$('shareStatus').textContent='Enlace de esta vista copiado';}
+  catch {$('shareStatus').textContent='Copiá el enlace desde la barra de direcciones';}
+  setTimeout(()=>{$('shareStatus').textContent='';},3500);
+};
 function mapMessage(text, error = false) {
   $('mapStatus').textContent = text;
   $('mapStatus').classList.toggle('error', error);
@@ -37,15 +61,14 @@ async function initMap() {
     const data = await readJSON('data/predio.geojson');
     parcel = L.geoJSON(data, {style: {color: '#ffc94d', weight: 3, fillOpacity: 0.04}}).addTo(map);
     if (!parcel.getBounds().isValid()) throw new Error('El predio no contiene una extensión válida.');
-    const area = data.features[0]?.properties.area_calculada_m2;
-    if (Number.isFinite(area)) {
-      $('area').textContent = $('infoArea').textContent = formatArea(area);
-      const popup = document.createElement('p');
-      popup.textContent = `Superficie aproximada (geometría ajustada): ${formatArea(area)}. Límites referenciales.`;
-      parcel.bindPopup(popup);
-    }
+    $('area').textContent = $('infoArea').textContent = referenceArea(data.features[0]);
+    const popup = document.createElement('p');
+    popup.textContent = `${areaLabel}: ${referenceArea(data.features[0])}. ${areaNote}`;
+    parcel.bindPopup(popup);
     const fit = () => map.fitBounds(parcel.getBounds(), {padding: [40, 40], maxZoom: 21});
+    fitParcel = fit;
     fit();
+    if(!$('vistaMapa').hidden)mapWasVisible=true;
     $('fit').disabled = $('showParcel').disabled = false;
     $('fit').addEventListener('click', fit);
     $('showParcel').addEventListener('change', event => {
@@ -63,19 +86,6 @@ async function initMap() {
         mapMessage('No se pudo cargar la ortofotografía. Recarga la página para reintentar.', true);
       });
       ortho.addTo(map);
-      const clip = () => {
-        const img = ortho.getElement(); if (!img) return;
-        const active = $('compare').checked && $('showOrtho').checked;
-        const x = map.getSize().x * Number($('swipe').value) / 100;
-        const left = map.latLngToContainerPoint(ortho.getBounds().getNorthWest()).x;
-        img.style.clipPath = active ? `inset(0 0 0 ${Math.max(0, x - left)}px)` : '';
-        $('swipeControl').hidden = !active;
-        $('divider').hidden = !active;
-        $('divider').style.left = `${$('swipe').value}%`;
-      };
-      $('compare').onchange = clip; $('swipe').oninput = clip;
-      map.on('move zoom resize', clip); ortho.on('load', clip);
-      $('showOrtho').addEventListener('change', clip);
       $('showOrtho').addEventListener('change', event => {
         if (event.target.checked) ortho.addTo(map); else map.removeLayer(ortho);
         $('opacity').disabled = !event.target.checked;
@@ -107,21 +117,26 @@ async function startModel() {
     $('modelStatus').append(retry);
   } finally { modelStarting = false; }
 }
-let information, informationLoading = false;
 async function initInfo() {
-  if (informationLoading || information) return;
-  informationLoading = true;
+  if (informationPromise || information) return;
+  informationPromise = (async()=>{
   try {
     const {createInformation} = await import('./information.js');
-    information = await createInformation();
-    information.setVisible(!$('vistaInfo').hidden);
+    information = await createInformation({onDestinationChange:destination=>{
+      if(current.view !== 'informacion') return;
+      current.destination=destination;writeNavigation('informacion',destination);
+    }});
+    information.setVisible(current.view==='informacion');
+    syncDestination();
   } catch (error) {
     $('infoStatus').hidden = false;
     $('infoStatus').textContent = `No se pudo abrir la información: ${error.message}`;
     const retry = document.createElement('button'); retry.textContent = 'Reintentar'; retry.onclick = initInfo;
     $('infoStatus').append(retry);
-  } finally {informationLoading = false;}
+  } finally {informationPromise = null;}
+  })();
 }
 initMap();
+activateView(current.view,{destination:current.destination,historyMode:'none'});
 
 $('togglePanel').onclick = () => {const collapsed = document.body.classList.toggle('panel-collapsed'); $('togglePanel').setAttribute('aria-expanded', String(!collapsed)); $('togglePanel').textContent = collapsed ? 'Mostrar panel' : 'Ocultar panel'; setTimeout(() => map?.invalidateSize(), 220);};
